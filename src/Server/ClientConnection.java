@@ -8,6 +8,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 
+//code
 public class ClientConnection implements Runnable{
 
     static int portNumber = 1400;
