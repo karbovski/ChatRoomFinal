@@ -17,7 +17,7 @@ public class User {
     }
 
     public static User findUserInDatabase(String login, String password) {
-
+// TODO is this safe method without synchronized??
         User userToReturn = null;
         for (User user : userDatabase){
             if (user.login.equals(login) && user.password.equals(password)) userToReturn = user;

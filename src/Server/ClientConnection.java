@@ -7,6 +7,8 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class ClientConnection implements Runnable{
 
@@ -14,7 +16,8 @@ public class ClientConnection implements Runnable{
     static ServerSocket serverSocket;
 
     // TODO synchronized?
-    static ArrayList<ClientConnection> connectedClients = new ArrayList<>();
+    //static ArrayList<ClientConnection> connectedClients = new ArrayList<>();
+    static List<ClientConnection> connectedClients = Collections.synchronizedList(new ArrayList<ClientConnection>());
 
     private Socket socket;
     private BufferedReader in;
@@ -23,9 +26,10 @@ public class ClientConnection implements Runnable{
 
     public ClientConnection(Socket clientSocket) throws IOException {
         socket = clientSocket;
-        connectedClients.add(this);
         in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         out = new PrintWriter(socket.getOutputStream(), true);
+
+        connectedClients.add(this);
     }
 
     @Override
@@ -41,10 +45,12 @@ public class ClientConnection implements Runnable{
             }
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            connectedClients.remove(this);
         }
     }
 
-    public void processAsMessage(String input){
+    public synchronized void processAsMessage(String input){
         Message message = new Message(input, user.login);
 
         for (ClientConnection client : connectedClients)
@@ -55,12 +61,12 @@ public class ClientConnection implements Runnable{
         this.out.println(message.toString());
     }
 
-    static String getStringWithOnlineUsers(){
+    synchronized static String getStringWithOnlineUsers(){
         String onlineUsers = "";
 
         for(ClientConnection conn : connectedClients){
-            //TODO her har vi et problem, den viser users som er disconnected
-            if (conn.user != null && conn.socket.isClosed()) onlineUsers += conn.user.login + " ";
+
+            if (conn.user != null && conn.socket.isClosed() != true) onlineUsers += conn.user.login + " ";
         }
 
         return onlineUsers;
@@ -68,7 +74,6 @@ public class ClientConnection implements Runnable{
 
     static void establishServerSocket(){
         try {
-            // create new server socket
             serverSocket = new ServerSocket(portNumber);
             System.out.println("Server socket is established now!");
 
