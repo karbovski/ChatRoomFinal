@@ -2,9 +2,7 @@ package Client;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.ConnectException;
 import java.net.Socket;
-import java.net.UnknownHostException;
 
 public class Chat {
 
@@ -34,15 +32,12 @@ public class Chat {
         }
     }
 
-    static void connectToServerWizard() throws IOException {
+    static void connectToServerWizard() {
         String serverIP = "";
         int portNumber;
 
         if (socket == null){
-
-
             try {
-
                 // get ip address from user
                 System.out.println("Type server IP you want connect to: ");
                 serverIP = Main.inputConsole.readLine();
@@ -54,46 +49,15 @@ public class Chat {
                 System.out.println("Trying connect to " + serverIP);
                 createSocket(serverIP, portNumber);
 
+                System.out.println("Successfully connected to " + serverIP + ":" + portNumber);
+                startChat();
 
             } catch (Throwable error) {
                 System.out.println(error.getMessage());
                 return;
             }
 
-            // try to establish connection with ip and port number provided by user
-
-            try {
-                // try create new socket
-                socket = new Socket(serverIP, portNumber);
-                System.out.println("Successfully connected to " + serverIP + ":" + portNumber);
-
-                startChat();
-
-            } catch (UnknownHostException e) {
-                System.out.println("Unknown host error! Could not connect to " + serverIP + ":" + portNumber);
-            } catch (ConnectException e){
-                System.out.println("Connect error! Could not connect to " + serverIP + ":" + portNumber);
-            }
-
         } else System.out.println("You are already connected to server!");
-
-    }
-
-    //TODO delete this part??
-    static void loginWizard() throws IOException {
-        System.out.println("Do you already have account on this chat? [yes/no]");
-
-        switch (Main.inputConsole.readLine()){
-            case "yes": {
-
-
-            }
-            case "no": {
-
-            }
-                default: System.out.println("Unrecognized answer!"); break;
-        }
-
     }
 
     static void createSocket(String IP, int portNumber){
@@ -102,8 +66,5 @@ public class Chat {
         } catch (IOException error){
             error.getMessage();
         }
-
-
     }
-
 }

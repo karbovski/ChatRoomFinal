@@ -15,8 +15,6 @@ public class ClientConnection implements Runnable{
     static int portNumber = 1400;
     static ServerSocket serverSocket;
 
-    // TODO synchronized?
-    //static ArrayList<ClientConnection> connectedClients = new ArrayList<>();
     static List<ClientConnection> connectedClients = Collections.synchronizedList(new ArrayList<ClientConnection>());
 
     private Socket socket;
@@ -44,9 +42,10 @@ public class ClientConnection implements Runnable{
 
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            e.getMessage();
         } finally {
             connectedClients.remove(this);
+            System.out.println("Client disconnected from " + this.socket.getInetAddress().getHostAddress().toString());
         }
     }
 
