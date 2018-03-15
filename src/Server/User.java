@@ -1,31 +1,27 @@
 package Server;
 
-import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.TreeMap;
 
 public class User {
 
+    // TODO synchronized??
     static ArrayList<User> userDatabase = new ArrayList<>();
 
     String login;
     String password;
 
-
     private User(String login, String password) {
         this.login = login;
         this.password = password;
-    }
-
-    void registerNewUser(){
-
+        userDatabase.add(this);
     }
 
     public static User findUserInDatabase(String login, String password) {
 
         User userToReturn = null;
-        for (User user : userDatabase)
-            if (user.login == login && user.password == password) userToReturn = user;
+        for (User user : userDatabase){
+            if (user.login.equals(login) && user.password.equals(password)) userToReturn = user;
+        }
         return userToReturn;
     }
 

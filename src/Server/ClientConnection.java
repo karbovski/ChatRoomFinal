@@ -8,20 +8,18 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 
-//code
 public class ClientConnection implements Runnable{
 
     static int portNumber = 1400;
-
     static ServerSocket serverSocket;
 
+    // TODO synchronized?
     static ArrayList<ClientConnection> connectedClients = new ArrayList<>();
 
     private Socket socket;
     private BufferedReader in;
     private PrintWriter out;
     private User user = null;
-    private boolean isInLoginState = true;
 
     public ClientConnection(Socket clientSocket) throws IOException {
         socket = clientSocket;
@@ -32,32 +30,40 @@ public class ClientConnection implements Runnable{
 
     @Override
     public void run() {
-
         try {
-            while(!socket.isClosed()){
+            while(!socket.isClosed()) {
+                if (user == null) showInfoAboutLoginAndRegister();
+
                 String inputFromClient = in.readLine();
-                if (isInLoginState == true && user == null) {
-                    processAsCommand(inputFromClient);
-                } else
-                    processAsMessage(inputFromClient);
+                if (user != null) processAsMessage(inputFromClient);
+                else if (user == null) processAsCommand(inputFromClient);
+
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
+    public void processAsMessage(String input){
+        Message message = new Message(input, user.login);
 
-    public  void processAsMessage(String input){
-        Message message = new Message(input);
-
-        // iterate through array and send message to clients
         for (ClientConnection client : connectedClients)
             client.sendMessage(message);
-
     }
+
     public void sendMessage(Message message){
         this.out.println(message.toString());
+    }
+
+    static String getStringWithOnlineUsers(){
+        String onlineUsers = "";
+
+        for(ClientConnection conn : connectedClients){
+            //TODO her har vi et problem, den viser users som er disconnected
+            if (conn.user != null && conn.socket.isClosed()) onlineUsers += conn.user.login + " ";
+        }
+
+        return onlineUsers;
     }
 
     static void establishServerSocket(){
@@ -106,9 +112,13 @@ public class ClientConnection implements Runnable{
                 User checkThisUser = User.findUserInDatabase(login, password);
 
                 // if found
-                if (checkThisUser != null)
+                if (checkThisUser != null){
                     user = checkThisUser;
-                else this.out.println("Login was not successful, try again!"); // if not found
+                    out.println("You are successfully logged in as " + login);
+                    out.println("Online users right now: " + getStringWithOnlineUsers());
+                }
+
+                else out.println("Login was not successful, try again!"); // if not found
             }
 
             else if (command.contains("register")){
@@ -122,12 +132,19 @@ public class ClientConnection implements Runnable{
                 String password = command.substring(comma + 1, last);
 
                 user = User.registerNewUserInDatabase(login,password);
+                out.println("You are successfully registered as " + login + " and your password is " + password);
+                out.println("Online users right now: " + getStringWithOnlineUsers());
             }
 
             else {
-                this.out.println("System not recognised your system-command, try again!");
+                out.println("System not recognised your system-command, try again!");
             }
 
         }
+    }
+
+     private void showInfoAboutLoginAndRegister(){
+        out.println("Type: #register([yourlogin],[yourpassword] to create new user on this chat!");
+        out.println("If you already have created a user type: #login([yourlogin],[yourpassword])");
     }
 }

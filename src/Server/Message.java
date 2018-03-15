@@ -9,9 +9,13 @@ public class Message {
     LocalTime messageTime = null;
     User user = null;
 
-
     public Message(String messageText) {
         this.messageText = messageText;
+        this.messageTime = LocalTime.now();
+    }
+
+    public Message(String messageText, String userName) {
+        this.messageText = "[" + userName + "]" + ": " + messageText;
         this.messageTime = LocalTime.now();
     }
 
@@ -19,8 +23,5 @@ public class Message {
     public String toString() {
         return messageTime.format(DateTimeFormatter.ofPattern("HH:mm:ss ")) + messageText;
     }
-
-    public static Message loginRequiredMessage(){
-        return new Message("You have to log in before you can start chatting. Type: login [nickname] [password]");
-    }
+    
 }

@@ -43,7 +43,6 @@ public class Chat {
 
             try {
 
-
                 // get ip address from user
                 System.out.println("Type server IP you want connect to: ");
                 serverIP = Main.inputConsole.readLine();
@@ -53,7 +52,7 @@ public class Chat {
                 portNumber = Integer.parseInt(Main.inputConsole.readLine());
 
                 System.out.println("Trying connect to " + serverIP);
-                createSocket(serverIP, portNumber, "dupa", "dupa");
+                createSocket(serverIP, portNumber);
 
 
             } catch (Throwable error) {
@@ -80,11 +79,13 @@ public class Chat {
 
     }
 
+    //TODO delete this part??
     static void loginWizard() throws IOException {
         System.out.println("Do you already have account on this chat? [yes/no]");
 
         switch (Main.inputConsole.readLine()){
             case "yes": {
+
 
             }
             case "no": {
@@ -95,7 +96,7 @@ public class Chat {
 
     }
 
-    static void createSocket(String IP, int portNumber, String login, String password){
+    static void createSocket(String IP, int portNumber){
         try {
             socket = new Socket(IP, portNumber);
         } catch (IOException error){
